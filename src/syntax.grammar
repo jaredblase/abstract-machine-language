@@ -1,26 +1,54 @@
-@top Program { expression* }
+@top Program { dataSection? logicSection }
 
 @skip { space | LineComment }
 
-expression {
-  Identifier |
-  String |
-  Boolean |
-  Application { "(" expression* ")" }
+storageDeclaration {
+	StorageType Identifier
+}
+
+dataSection {
+	DataSection { ".DATA" storageDeclaration*  }
+}
+
+logicSection {
+	LogicSection { ".LOGIC" state* }
+}
+
+commaSep<content> { content ("," content)* }
+
+transition { 
+	Transition { "(" Symbol "," Identifier ")" } |
+	TMTransition { "(" Symbol "/" Symbol "," Identifier ")" }
+}
+
+state { 
+	State {
+		Identifier "]" (FSACommand commaSep<transition> | (PDACommand | TMCommand) "(" Identifier ")" commaSep<transition>)
+	}
 }
 
 @tokens {
+	Symbol { ![] }
+
   Identifier { $[a-zA-Z_\-0-9]+ }
 
-  String { '"' (!["\\] | "\\" _)* '"' }
+  LineComment { ";;" ![\n]* }
 
-  Boolean { "#t" | "#f" }
+  space { @whitespace+ }
 
-  LineComment { ";" ![\n]* }
+	StorageType { "STACK" | "QUEUE" | "TAPE" | "2D_TAPE" }
 
-  space { $[ \t\n\r]+ }
+	FSACommand { "SCAN" | "PRINT" | "SCAN RIGHT" | "SCAN LEFT" }
 
-  "(" ")"
+	PDACommand { "READ" | "WRITE" }
+
+	TMCommand { "RIGHT" | "LEFT" | "UP" | "DOWN" }
+
+	".DATA"
+
+	".LOGIC"
+
+	@precedence { LineComment, space, Symbol }
 }
 
-@detectDelim
+

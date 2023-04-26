@@ -1,41 +1,54 @@
-# Booleans
+# Data and Logic Sections
 
-#t
-#f
+.DATA
+STACK s1
+
+.LOGIC
+q0] SCAN (0, q0)
 
 ==>
 
-Program(Boolean, Boolean)
+Program(DataSection(".DATA",StorageType,Identifier),LogicSection(".LOGIC",State(Identifier,FSACommand,Transition(Symbol,Identifier))))
+
 
 # Identifiers
 
-one
-Two_Three
+.LOGIC
+q1] SCAN RIGHT (0, q1), (1, q2),
+	(1, q2)
 
 ==>
 
-Program(Identifier, Identifier)
+Program(LogicSection(".LOGIC",State(Identifier,FSACommand,Transition(Symbol,Identifier),Transition(Symbol,Identifier),Transition(Symbol,Identifier))))
 
-# Strings
 
-"hello"
-"one\"\\two"
+# Memory
 
-==>
-
-Program(String, String)
-
-# Applications
-
-(begin
-  (when #t
-    (print (concat "hello" " " "world")))
-  (print "DONE"))
+.LOGIC
+q1] READ(s1) (0, q1), (1, q2)
 
 ==>
 
-Program(Application(
-  Identifier,
-  Application(Identifier, Boolean, Application(
-    Identifier, Application(Identifier, String, String, String)))
-  Application(Identifier, String)))
+Program(LogicSection(".LOGIC",State(Identifier,PDACommand,Identifier,Transition(Symbol,Identifier),Transition(Symbol,Identifier))))
+
+
+# Tape
+
+.LOGIC
+q1] RIGHT(t1) (0/x, q1), (1/y, q2)
+
+==>
+
+Program(LogicSection(".LOGIC",State(Identifier,TMCommand,Identifier,TMTransition(Symbol,Symbol,Identifier),TMTransition(Symbol,Symbol,Identifier))))
+
+
+# Intentional Error
+
+.LOGIC
+
+q1] SCAN (q, x)
+q3] SCAN (q, x)
+
+==>
+
+Program(LogicSection(".LOGIC",Identifier,TMCommand,Identifier,Symbol,Symbol,Identifier,Symbol,Symbol,Identifier))
